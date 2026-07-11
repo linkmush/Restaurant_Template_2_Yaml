@@ -19,6 +19,9 @@ spec:
         app: restaurant-template
 
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: k3s-worker
+
       containers:
         - name: restaurant-template
           image: ghcr.io/linkmush/restaurant-template:1.0

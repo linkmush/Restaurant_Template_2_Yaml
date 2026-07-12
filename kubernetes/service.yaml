@@ -3,6 +3,7 @@ kind: Service
 
 metadata:
   name: restaurant-service
+  namespace: restaurant-dev
   labels:
     app: restaurant-template
     # environment=dev.(dev, test, prod)

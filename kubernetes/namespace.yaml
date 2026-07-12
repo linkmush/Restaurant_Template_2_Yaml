@@ -1,0 +1,7 @@
+# Skapar namespace-arbetsområdet restaurant-dev; övriga resurser kan inte skapas där förrän namespace finns.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: restaurant-dev
+  labels:
+    environment: dev

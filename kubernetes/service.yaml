@@ -5,12 +5,16 @@ metadata:
   name: restaurant-service
   labels:
     app: restaurant-template
+    # environment=dev.(dev, test, prod)
+    environment: dev # Märker Service-resursen som dev för organisering och filtrering.
 
 spec:
   type: ClusterIP
 
   selector:
     app: restaurant-template
+    # environment=dev.(dev, test, prod)
+    environment: dev # Service skickar endast trafik till Pods märkta app=restaurant-template och environment=dev.
 
   ports:
     - name: http

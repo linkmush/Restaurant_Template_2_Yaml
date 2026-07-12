@@ -5,6 +5,8 @@ metadata:
   name: restaurant-template
   labels:
     app: restaurant-template
+    # environment=dev.(dev, test, prod)
+    environment: dev # Märker själva Deployment-resursen som tillhörande dev-miljön. Används för att organisera och filtrera Deployments, exempelvis: kubectl get deployments -l environment=dev
 
 spec:
   replicas: 1
@@ -18,10 +20,13 @@ spec:
     metadata:
       labels:
         app: restaurant-template
+        # environment=dev.(dev, test, prod)
+        environment: dev  # Märker alla Pods som Deploymenten skapar som dev-Pods. Labeln beskriver Poddens miljötillhörighet men styr inte placeringen i miljön.
 
     spec:
       nodeSelector:
-        kubernetes.io/hostname: k3s-worker
+        node-pool: applications # Podden får köras på noder som tillhör applications-gruppen.
+        environment: dev # Podden får endast schemaläggas på en node märkt environment=dev.(dev, test, prod) Om ingen dev node är tillgänglig kommer Podden att bli Pending.
 
       containers:
         - name: restaurant-template

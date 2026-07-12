@@ -3,6 +3,10 @@ kind: Ingress
 
 metadata:
   name: restaurant-ingress
+  labels:
+    app: restaurant-template
+    # environment=dev.(dev, test, prod)
+    environment: dev # Märker Ingress-resursen som dev; påverkar inte trafikstyrningen.
 
 spec:
   ingressClassName: traefik

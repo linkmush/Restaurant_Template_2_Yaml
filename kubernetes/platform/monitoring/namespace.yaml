@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Namespace
+
+metadata:
+  name: monitoring
+  labels:
+    purpose: monitoring
+
+# Monitoring är inte en miljö som dev, test eller prod.
+# Det beskriver i stället namespace-resursens syfte.
+# Exempel på purpose-värden: monitoring, logging, security och applications.
+#
+# Här kan vi senare installera:
+#
+# - Prometheus: samlar in mätvärden
+# - Grafana: visar dashboards
+# - Alertmanager: hanterar och skickar larm
+# - kube-state-metrics: visar Kubernetes-resursernas status
+# - node-exporter: samlar mätvärden från noderna
+#
+# Verktygen är ännu inte installerade.

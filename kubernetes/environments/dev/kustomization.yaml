@@ -1,0 +1,31 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Sätter restaurant-dev på alla namespacade resurser från base.
+namespace: restaurant-dev
+
+resources:
+  # Återanvänd restaurangapplikationens gemensamma base.
+  - ../../apps/restaurant/base
+
+  # Skapa även dev-namespacet.
+  - namespace.yaml
+
+# Miljöspecifika ändringar.
+patches:
+  - path: deployment-patch.yaml
+
+  - path: service-patch.yaml
+
+  - target:
+      group: networking.k8s.io
+      version: v1
+      kind: Ingress
+      name: restaurant-ingress
+    path: ingress-patch.yaml
+
+# Dev-miljön använder denna image-tagg.
+# Senare kan test och prod använda andra taggar.
+images:
+  - name: ghcr.io/linkmush/restaurant-template
+    newTag: "1.0"

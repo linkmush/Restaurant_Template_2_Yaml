@@ -3,36 +3,19 @@ kind: Ingress
 
 metadata:
   name: restaurant-ingress
-  namespace: restaurant-dev
 
   labels:
     # Identifierar vilken applikation Ingress-resursen tillhör.
-    # Labeln används för organisering och filtrering men påverkar
-    # inte vilken Service som trafiken skickas till.
     app: restaurant-template
 
-    # Märker själva Ingress-resursen som tillhörande dev-miljön.
-    # Labeln används för organisering, filtrering och framtida policies.
-    # Den påverkar inte hostnamnet eller trafikstyrningen.
-    #
-    # Exempel:
-    # kubectl get ingress -n restaurant-dev -l environment=dev
-    environment: dev
-
 spec:
-  # Anger att denna Ingress ska hanteras av Traefik.
-  # K3s installerar normalt Traefik som standardmässig ingress-controller.
+  # Ingress-resursen hanteras av Traefik.
   ingressClassName: traefik
 
   rules:
-    # Trafik som skickas till detta hostnamn matchar denna regel.
-    #
-    # För lokal åtkomst behöver hostnamnet normalt kopplas till
-    # klustrets IP-adress i Windows hosts-fil eller via lokal DNS.
-    #
-    # Exempel i hosts-filen:
-    # 192.168.1.xxx linkmush.template
-    - host: linkmush.template
+    # Detta är ett generellt grundvärde.
+    # Varje miljö ersätter hostnamnet genom sin overlay.
+    - host: restaurant.example.local
 
       http:
         paths:

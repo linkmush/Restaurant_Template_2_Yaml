@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: restaurant-template
+
+  labels:
+    # Märker Deployment-resursen som tillhörande dev-miljön.
+    environment: dev
+
+spec:
+  # Dev kör en replika.
+  replicas: 1
+
+  template:
+    metadata:
+      labels:
+        # Märker poddarna som tillhörande dev-miljön.
+        environment: dev
+
+    spec:
+      nodeSelector:
+        # Dev-poddarna kräver en worker node märkt environment=dev.
+        #
+        # Base-konfigurationens node-pool=applications finns också kvar.
+        # Noden måste alltså uppfylla båda villkoren.
+        environment: dev

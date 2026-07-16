@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: restaurant-template
+
+  labels:
+    # Identifierar vilken applikation Deployment-resursen tillhör.
+    # Miljöspecifika labels, exempelvis environment=dev,
+    # läggs till av respektive Kustomize-overlay.
+    app: restaurant-template
+
+spec:
+  # Grundvärdet är en replika.
+  # En overlay kan senare ändra detta för exempelvis test eller prod.
+  replicas: 1
+
+  # Behåller högst tre äldre ReplicaSets för historik och rollback.
+  revisionHistoryLimit: 3
+
+  selector:
+    matchLabels:
+      # Deploymenten hanterar pods med denna label.
+      # Deployment-selectorn hålls stabil och miljöoberoende.
+      app: restaurant-template
+
+  template:
+    metadata:
+      labels:
+        # Identifierar poddarna som en del av restaurant-template.
+        # Environment-labeln läggs till av miljöns overlay.
+        app: restaurant-template
+
+    spec:
+      nodeSelector:
+        # Gemensamt för samtliga miljöer:
+        # applikationen får bara köras på application-noder.
+        node-pool: applications
+
+        # environment=dev ligger inte i base.
+        # Det läggs i dev-overlayn eftersom det är miljöspecifikt.
+
+      containers:
+        - name: restaurant-template
+
+          # Overlayn kan byta tagg utan att denna fil behöver ändras.
+          image: ghcr.io/linkmush/restaurant-template:1.0
+
+          ports:
+            - name: http
+
+              # Containern lyssnar på port 80.
+              # Porten exponeras internt genom Service-resursen.
+              containerPort: 80
+
+          resources:
+            requests:
+              # Resurser som reserveras vid schemaläggning.
+              cpu: "50m"
+              memory: "64Mi"
+
+            limits:
+              # Högsta tillåtna resursanvändning.
+              cpu: "250m"
+              memory: "128Mi"
+
+          readinessProbe:
+            # Kontrollerar om applikationen är redo att ta emot trafik.
+            httpGet:
+              path: /
+              port: 80
+
+            initialDelaySeconds: 5
+            periodSeconds: 10
+
+          livenessProbe:
+            # Kontrollerar om applikationen fortfarande fungerar.
+            # Kubernetes startar om containern efter upprepade fel.
+            httpGet:
+              path: /
+              port: 80
+
+            initialDelaySeconds: 15
+            periodSeconds: 20
+
+      imagePullSecrets:
+        # Autentisering mot det privata GHCR-registret.
+        # Secret-resursen måste finnas i samma namespace som podden.
+        - name: ghcr-secret

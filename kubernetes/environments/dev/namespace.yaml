@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Namespace
+
+metadata:
+  name: restaurant-dev
+
+  labels:
+    # Namespace-resursens funktion är att innehålla applikationer.
+    purpose: applications
+
+    # Anger vilken driftsmiljö detta namespace representerar.
+    environment: dev
+
+# Namespace skiljer dev-miljön från framtida test- och prod-miljöer.
+#
+# Här placeras bland annat:
+# - Deployment
+# - Service
+# - Ingress
+# - Pods
+# - Secrets9

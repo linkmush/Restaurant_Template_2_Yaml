@@ -1,0 +1,7 @@
+- op: add
+  path: /metadata/labels/environment
+  value: dev
+
+- op: replace
+  path: /spec/rules/0/host
+  value: linkmush.template

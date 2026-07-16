@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: restaurant-service
+
+  labels:
+    # Märker Service-resursen som tillhörande dev-miljön.
+    environment: dev
+
+spec:
+  selector:
+    # Service skickar trafik till restaurant-poddar
+    # som dessutom tillhör dev-miljön.
+    environment: dev

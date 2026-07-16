@@ -1,9 +1,0 @@
-# Skapar namespace-arbetsområdet restaurant-dev; övriga resurser kan inte skapas där förrän namespace finns.
-# eftersom namespace grupperar in deployment, service och ingress så är environment överflödig.
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: restaurant-dev
-  labels:
-    environment: dev # environment=dev.(dev, test, prod)
-    # Märker själva Deployment-resursen som tillhörande dev-miljön. Används för att organisera och filtrera Deployments, exempelvis: kubectl get deployments -l environment=dev

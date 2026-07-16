@@ -4,60 +4,130 @@ kind: Deployment
 metadata:
   name: restaurant-template
   namespace: restaurant-dev
+
   labels:
     app: restaurant-template
-    # environment=dev.(dev, test, prod)
-    environment: dev # Märker själva Deployment-resursen som tillhörande dev-miljön. Används för att organisera och filtrera Deployments, exempelvis: kubectl get deployments -l environment=dev
+
+    # Märker själva Deployment-resursen som tillhörande dev-miljön.
+    # Labeln används för organisering, filtrering och framtida policies.
+    # Den påverkar inte vilka noder poddarna placeras på.
+    #
+    # Exempel:
+    # kubectl get deployments -n restaurant-dev -l environment=dev
+    environment: dev
 
 spec:
+  # Deploymenten ska försöka hålla exakt en fungerande pod igång.
   replicas: 1
+
+  # Kubernetes behåller högst tre äldre ReplicaSets.
+  # Det gör det möjligt att se tidigare versioner och göra rollback,
+  # utan att spara ett obegränsat antal gamla ReplicaSets.
   revisionHistoryLimit: 3
 
   selector:
     matchLabels:
+      # Deploymenten hanterar pods som har denna label.
+      # Värdet måste matcha motsvarande label under template.metadata.labels.
       app: restaurant-template
 
   template:
     metadata:
       labels:
+        # Identifierar poddarna som en del av applikationen
+        # restaurant-template. Används bland annat av Deploymenten
+        # och Service-resursen för att hitta rätt pods.
         app: restaurant-template
-        # environment=dev.(dev, test, prod)
-        environment: dev  # Märker alla Pods som Deploymenten skapar som dev-Pods. Labeln beskriver Poddens miljötillhörighet men styr inte placeringen i miljön.
+
+        # Märker poddarna som tillhörande dev-miljön.
+        # Labeln används för organisering, filtrering och selectors.
+        # Den styr inte i sig vilken nod podden placeras på.
+        #
+        # Exempel:
+        # kubectl get pods -n restaurant-dev -l environment=dev
+        environment: dev
 
     spec:
       nodeSelector:
-        node-pool: applications # Podden får köras på noder som tillhör applications-gruppen.
-        environment: dev # Podden får endast schemaläggas på en node märkt environment=dev.(dev, test, prod) Om ingen dev node är tillgänglig kommer Podden att bli Pending.
+        # Podden får endast schemaläggas på noder som har labeln:
+        # node-pool=applications
+        #
+        # Detta skiljer applikationsnoder från exempelvis noder
+        # avsedda för plattforms- eller systemkomponenter.
+        node-pool: applications
+
+        # Podden får endast schemaläggas på en nod som dessutom har:
+        # environment=dev
+        #
+        # Båda nodeSelector-villkoren måste vara uppfyllda.
+        # Om ingen tillgänglig nod har både node-pool=applications
+        # och environment=dev kommer podden att bli Pending.
+        #
+        # Detta passar när dev, test och prod har separata worker-noder.
+        # Om samma worker senare ska köra flera miljöer bör denna selector
+        # tas bort och miljöseparationen i stället hanteras med namespaces.
+        environment: dev
 
       containers:
         - name: restaurant-template
+
+          # Container-image och version som podden ska köra.
           image: ghcr.io/linkmush/restaurant-template:1.0
 
           ports:
             - name: http
+
+              # Dokumenterar att containern lyssnar på port 80.
+              # Detta exponerar inte porten utanför podden;
+              # det hanteras av en separat Service-resurs.
               containerPort: 80
 
           resources:
             requests:
+              # Resurser som Kubernetes använder vid schemaläggning.
+              # Noden måste ha minst dessa resurser tillgängliga.
               cpu: "50m"
               memory: "64Mi"
+
             limits:
+              # Högsta tillåtna resursanvändning för containern.
               cpu: "250m"
               memory: "128Mi"
 
           readinessProbe:
+            # Kontrollerar om applikationen är redo att ta emot trafik.
+            # Om kontrollen misslyckas tas podden tillfälligt bort
+            # från Service-resursens aktiva endpoints.
             httpGet:
               path: /
               port: 80
+
+            # Vänta fem sekunder efter containerstart innan
+            # den första readiness-kontrollen utförs.
             initialDelaySeconds: 5
+
+            # Kör därefter kontrollen var tionde sekund.
             periodSeconds: 10
 
           livenessProbe:
+            # Kontrollerar om applikationen fortfarande fungerar.
+            # Om kontrollen misslyckas flera gånger startar Kubernetes
+            # om containern.
             httpGet:
               path: /
               port: 80
+
+            # Vänta femton sekunder efter containerstart innan
+            # den första liveness-kontrollen utförs.
             initialDelaySeconds: 15
+
+            # Kör därefter kontrollen var tjugonde sekund.
             periodSeconds: 20
 
       imagePullSecrets:
+        # Secret som innehåller autentiseringsuppgifter för GHCR.
+        # Krävs eftersom container-imagen ligger i ett privat registry.
+        #
+        # Secret-resursen måste finnas i samma namespace som podden,
+        # alltså restaurant-dev.
         - name: ghcr-secret

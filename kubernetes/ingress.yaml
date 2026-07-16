@@ -4,24 +4,56 @@ kind: Ingress
 metadata:
   name: restaurant-ingress
   namespace: restaurant-dev
+
   labels:
+    # Identifierar vilken applikation Ingress-resursen tillhör.
+    # Labeln används för organisering och filtrering men påverkar
+    # inte vilken Service som trafiken skickas till.
     app: restaurant-template
-    # environment=dev.(dev, test, prod)
-    environment: dev # Märker Ingress-resursen som dev; påverkar inte trafikstyrningen.
+
+    # Märker själva Ingress-resursen som tillhörande dev-miljön.
+    # Labeln används för organisering, filtrering och framtida policies.
+    # Den påverkar inte hostnamnet eller trafikstyrningen.
+    #
+    # Exempel:
+    # kubectl get ingress -n restaurant-dev -l environment=dev
+    environment: dev
 
 spec:
+  # Anger att denna Ingress ska hanteras av Traefik.
+  # K3s installerar normalt Traefik som standardmässig ingress-controller.
   ingressClassName: traefik
 
   rules:
+    # Trafik som skickas till detta hostnamn matchar denna regel.
+    #
+    # För lokal åtkomst behöver hostnamnet normalt kopplas till
+    # klustrets IP-adress i Windows hosts-fil eller via lokal DNS.
+    #
+    # Exempel i hosts-filen:
+    # 192.168.1.xxx linkmush.template
     - host: linkmush.template
 
       http:
         paths:
+          # Alla sökvägar som börjar med "/" matchar denna regel.
+          # Det innebär att exempelvis "/", "/about" och "/contact"
+          # skickas vidare till samma Service.
           - path: /
+
+            # Prefix innebär att alla URL-sökvägar som börjar med
+            # det angivna värdet matchar.
             pathType: Prefix
 
             backend:
               service:
+                # Namnet på den Service som Ingress skickar trafiken till.
+                # Service-resursen måste finnas i samma namespace
+                # som Ingress-resursen, alltså restaurant-dev.
                 name: restaurant-service
+
                 port:
+                  # Trafiken skickas till port 80 på Service-resursen.
+                  # Service-resursen skickar sedan trafiken vidare
+                  # till containerporten på rätt pods.
                   number: 80

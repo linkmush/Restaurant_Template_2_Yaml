@@ -1,0 +1,71 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+
+metadata:
+  name: restaurant-environments
+  namespace: argocd
+
+spec:
+  # Aktiverar Go-template så att vi kan använda villkor,
+  # exempelvis auto-sync endast för dev.
+  goTemplate: true
+
+  goTemplateOptions:
+    - missingkey=error
+
+  # Listan beskriver vilka miljöer som ska genereras.
+  generators:
+    - list:
+        elements:
+          - environment: dev
+            namespace: restaurant-dev
+            path: kubernetes/environments/dev
+            automated: true
+
+          - environment: prod
+            namespace: restaurant-prod
+            path: kubernetes/environments/prod
+            automated: false
+
+  # Gemensam mall för båda Argo CD Applications.
+  template:
+    metadata:
+      name: "restaurant-{{ .environment }}"
+
+      labels:
+        app: restaurant-template
+        environment: "{{ .environment }}"
+
+    spec:
+      # Applications tillhör vårt begränsade restaurant-projekt.
+      project: restaurant
+
+      source:
+        repoURL: https://github.com/linkmush/Restaurant_Template_2_Yaml.git
+        targetRevision: main
+        path: "{{ .path }}"
+
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: "{{ .namespace }}"
+
+      # Argo CD behåller historik för tidigare synkningar och rollback.
+      revisionHistoryLimit: 10
+
+  # Detta block läggs endast till när automated=true.
+  # Därför får dev auto-sync medan prod förblir manuell.
+  templatePatch: |
+    {{- if .automated }}
+    spec:
+      syncPolicy:
+        automated:
+          enabled: true
+          prune: true
+          selfHeal: true
+    {{- end }}
+
+  # Säkerhet för homelabbet:
+  # om en genererad Application tas bort ska dess Kubernetes-resurser
+  # inte automatiskt raderas samtidigt.
+  syncPolicy:
+    preserveResourcesOnDeletion: true

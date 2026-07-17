@@ -2,16 +2,16 @@ apiVersion: v1
 kind: Namespace
 
 metadata:
-  name: restaurant-dev
+  name: restaurant-prod
 
   labels:
     # Namespace-resursens funktion är att innehålla applikationer.
     purpose: applications
 
     # Anger vilken driftsmiljö detta namespace representerar.
-    environment: dev
+    environment: prod
 
-# Namespace skiljer dev-miljön från framtida test- och prod-miljöer.
+# Namespace skiljer prod-miljön från test- och dev-miljöer.
 #
 # Här placeras bland annat:
 # - Deployment

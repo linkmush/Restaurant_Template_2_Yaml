@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: restaurant-service
+
+  labels:
+    # Märker Service-resursen som tillhörande prod-miljön.
+    environment: prod
+
+spec:
+  selector:
+    # Service skickar trafik till restaurant-poddar
+    # som dessutom tillhör prod-miljön.
+    environment: prod

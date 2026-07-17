@@ -1,0 +1,37 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+
+metadata:
+  name: restaurant
+  namespace: argocd
+
+spec:
+  description: Argo CD project for the restaurant application environments.
+
+  # Endast detta Git-repository får användas av projektet.
+  sourceRepos:
+    - https://github.com/linkmush/Restaurant_Template_2_Yaml.git
+
+  # Projektets applikationer får endast installera till dessa namespaces.
+  destinations:
+    - namespace: restaurant-dev
+      server: https://kubernetes.default.svc
+
+    - namespace: restaurant-prod
+      server: https://kubernetes.default.svc
+
+  # Namespace är en klusteromfattande resurs.
+  # Detta krävs eftersom våra overlays innehåller namespace.yaml.
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+
+  # Tillåt namespacade resurser såsom Deployment, Service och Ingress.
+  namespaceResourceWhitelist:
+    - group: "*"
+      kind: "*"
+
+  # Varna om resurser finns i projektets namespaces men inte längre
+  # hanteras av någon Argo CD Application.
+  orphanedResources:
+    warn: true

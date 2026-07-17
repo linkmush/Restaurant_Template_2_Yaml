@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+
+metadata:
+  name: prune-test
+  labels:
+    purpose: argocd-prune-test
+
+data:
+  message: "This resource should be deleted by Argo CD prune."

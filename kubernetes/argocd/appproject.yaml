@@ -35,3 +35,10 @@ spec:
   # hanteras av någon Argo CD Application.
   orphanedResources:
     warn: true
+
+    # Registry-secretet hanteras manuellt i homelabbet
+    # och ska därför inte visas som en orphaned resource.
+    ignore:
+      - group: ""
+        kind: Secret
+        name: ghcr-secret

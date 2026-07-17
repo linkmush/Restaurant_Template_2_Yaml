@@ -5,6 +5,10 @@ metadata:
   name: restaurant-environments
   namespace: argocd
 
+  annotations:
+    # Kräver uttryckligt godkännande innan Argo CD får radera projektet.
+    argocd.argoproj.io/sync-options: Prune=confirm
+
 spec:
   # Aktiverar Go-template så att vi kan använda villkor,
   # exempelvis auto-sync endast för dev.

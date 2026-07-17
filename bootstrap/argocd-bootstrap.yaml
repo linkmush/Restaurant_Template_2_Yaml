@@ -1,0 +1,37 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+
+metadata:
+  name: argocd-bootstrap
+  namespace: argocd
+
+spec:
+  # Bootstrap använder default eftersom den ska skapa och hantera
+  # AppProject och ApplicationSet i Argo CD-namespacet.
+  project: default
+
+  source:
+    repoURL: https://github.com/linkmush/Restaurant_Template_2_Yaml.git
+    targetRevision: main
+    path: kubernetes/argocd
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+
+  # Argo CD-historik för bootstrap-applikationen.
+  revisionHistoryLimit: 10
+
+  syncPolicy:
+    automated:
+      enabled: true
+
+      # Tar bort resurser som har tagits bort från Git.
+      prune: true
+
+      # Återställer manuella ändringar i klustret enligt Git.
+      selfHeal: true
+
+    syncOptions:
+      # Eventuell borttagning sker sist i synkningen.
+      - PruneLast=true

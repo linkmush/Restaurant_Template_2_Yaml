@@ -5,6 +5,10 @@ metadata:
   name: restaurant
   namespace: argocd
 
+  annotations:
+    # Kräver uttryckligt godkännande innan Argo CD får radera projektet.
+    argocd.argoproj.io/sync-options: Prune=confirm
+
 spec:
   description: Argo CD project for the restaurant application environments.
 

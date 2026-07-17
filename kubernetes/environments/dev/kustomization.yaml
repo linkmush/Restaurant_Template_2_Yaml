@@ -10,7 +10,6 @@ resources:
 
   # Skapa även dev-namespacet.
   - namespace.yaml
-  - prune-test-configmap.yaml
 
 # Miljöspecifika ändringar.
 patches:

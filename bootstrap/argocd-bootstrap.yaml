@@ -8,7 +8,7 @@ metadata:
 spec:
   # Bootstrap använder default eftersom den ska skapa och hantera
   # AppProject och ApplicationSet i Argo CD-namespacet.
-  project: default
+  project: platform
 
   source:
     repoURL: https://github.com/linkmush/Restaurant_Template_2_Yaml.git

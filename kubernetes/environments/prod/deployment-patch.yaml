@@ -15,7 +15,7 @@ spec:
   template:
     metadata:
       labels:
-        # Märker poddarna som tillhörande dev-miljön.
+        # Märker poddarna som tillhörande prod-miljön.
         environment: prod
 
 
@@ -23,6 +23,8 @@ spec:
       #
       # Base-konfigurationens node-pool=applications finns också kvar.
       # Noden måste alltså uppfylla båda villkoren.
-    #spec:
-     # nodeSelector:
-      #  environment: prod
+    spec:
+      nodeSelector:
+        # node-pool=applications ärvs från base.
+        # Prod lägger till sitt miljöspecifika placeringskrav.
+        environment: prod

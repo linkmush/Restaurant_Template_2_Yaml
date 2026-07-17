@@ -10,7 +10,7 @@ metadata:
 
 spec:
   # Prod kör en replika.
-  replicas: 1
+  replicas: 2
 
   template:
     metadata:

@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+
+metadata:
+  name: platform
+  namespace: argocd
+
+  annotations:
+    # Projektet får inte raderas automatiskt utan godkännande.
+    argocd.argoproj.io/sync-options: Prune=confirm
+
+spec:
+  description: Argo CD project for platform and GitOps administration.
+
+  # Plattformskonfigurationen får endast läsas från detta repository.
+  sourceRepos:
+    - https://github.com/linkmush/Restaurant_Template_2_Yaml.git
+
+  # Plattformens Application får endast deploya till argocd-namespacet.
+  destinations:
+    - namespace: argocd
+      server: https://kubernetes.default.svc
+
+  # Bootstrap behöver just nu endast hantera dessa två resurstyper.
+  namespaceResourceWhitelist:
+    - group: argoproj.io
+      kind: AppProject
+
+    - group: argoproj.io
+      kind: ApplicationSet

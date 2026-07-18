@@ -134,3 +134,12 @@ jobs:
           fi
 
           echo "No latest image tags found."
+
+      # Kontrollerar säkerhet och produktionsstandarder
+      # i den färdigrenderade Kubernetes-konfigurationen.
+      - name: Validate Kubernetes security
+        uses: stackrox/kube-linter-action@v1.0.7
+        with:
+          directory: rendered
+          version: "0.8.3"
+          fail-on-invalid-resource: "true"

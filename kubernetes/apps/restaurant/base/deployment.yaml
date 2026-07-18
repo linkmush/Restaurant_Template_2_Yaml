@@ -87,4 +87,3 @@ spec:
         # Autentisering mot det privata GHCR-registret.
         # Secret-resursen måste finnas i samma namespace som podden.
         - name: ghcr-secret
-        

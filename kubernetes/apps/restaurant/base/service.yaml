@@ -29,4 +29,3 @@ spec:
 
       # Porten som trafiken skickas vidare till på poddarna.
       targetPort: 80
-      

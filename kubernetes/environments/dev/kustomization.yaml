@@ -29,4 +29,3 @@ patches:
 images:
   - name: ghcr.io/linkmush/restaurant-template
     newTag: "1.0"
-    

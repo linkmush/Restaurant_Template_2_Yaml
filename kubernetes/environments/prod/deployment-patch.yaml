@@ -18,12 +18,11 @@ spec:
         # Märker poddarna som tillhörande prod-miljön.
         environment: prod
 
-
+    spec:
       # Prod-poddarna kräver en worker node märkt environment=prod.
       #
       # Base-konfigurationens node-pool=applications finns också kvar.
       # Noden måste alltså uppfylla båda villkoren.
-    spec:
       nodeSelector:
         # node-pool=applications ärvs från base.
         # Prod lägger till sitt miljöspecifika placeringskrav.

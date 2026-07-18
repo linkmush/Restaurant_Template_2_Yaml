@@ -11,11 +11,11 @@ metadata:
     # Anger vilken driftsmiljö detta namespace representerar.
     environment: prod
 
-# Namespace skiljer prod-miljön från test- och dev-miljöer.
-#
-# Här placeras bland annat:
-# - Deployment
-# - Service
-# - Ingress
-# - Pods
-# - Secrets
+    # Namespace skiljer prod-miljön från test- och dev-miljöer.
+    #
+    # Här placeras bland annat:
+    # - Deployment
+    # - Service
+    # - Ingress
+    # - Pods
+    # - Secrets

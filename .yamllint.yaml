@@ -1,0 +1,12 @@
+extends: default
+
+rules:
+  # Kubernetes-filer behöver inte börja med "---".
+  document-start: disable
+
+  # Långa kommentarer ska inte stoppa pipelinen.
+  line-length: disable
+
+  # GitHub Actions använder nyckeln "on".
+  truthy:
+    check-keys: false

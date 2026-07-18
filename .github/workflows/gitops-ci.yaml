@@ -141,5 +141,5 @@ jobs:
         uses: stackrox/kube-linter-action@v1.0.7
         with:
           directory: rendered
-          version: "0.8.3"
+          version: "v0.8.3"
           fail-on-invalid-resource: "true"

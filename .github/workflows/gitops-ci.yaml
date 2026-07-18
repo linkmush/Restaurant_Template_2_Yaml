@@ -155,7 +155,7 @@ jobs:
           # Vi behåller workflowens nuvarande read-only-behörighet
           # och stänger därför av automatiska PR-kommentarer.
           GITLEAKS_ENABLE_COMMENTS: "false"
-      
+
       # Kontrollerar Bash-scripts om repot innehåller några.
       - name: Validate Bash scripts
         shell: bash
@@ -177,7 +177,7 @@ jobs:
 
           echo "Checking ${#scripts[@]} Bash script(s)."
           shellcheck "${scripts[@]}"
-      
+
       # Kontrollerar PowerShell-scripts om repot innehåller några.
       - name: Validate PowerShell scripts
         shell: pwsh

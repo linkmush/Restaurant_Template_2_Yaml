@@ -27,4 +27,3 @@ spec:
         # node-pool=applications ärvs från base.
         # Prod lägger till sitt miljöspecifika placeringskrav.
         environment: prod
-        

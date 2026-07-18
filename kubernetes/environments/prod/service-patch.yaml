@@ -13,4 +13,3 @@ spec:
     # Service skickar trafik till restaurant-poddar
     # som dessutom tillhör prod-miljön.
     environment: prod
-    

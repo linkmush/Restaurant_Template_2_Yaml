@@ -47,7 +47,7 @@ jobs:
           set -euo pipefail
 
           sudo apt-get update
-          sudo apt-get install -y yamllint
+          sudo apt-get install -y yamllint shellcheck
 
           KUBECONFORM_VERSION="0.8.0"
 
@@ -155,3 +155,72 @@ jobs:
           # Vi behåller workflowens nuvarande read-only-behörighet
           # och stänger därför av automatiska PR-kommentarer.
           GITLEAKS_ENABLE_COMMENTS: "false"
+      
+      # Kontrollerar Bash-scripts om repot innehåller några.
+      - name: Validate Bash scripts
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mapfile -d '' scripts < <(
+            find . \
+              -type f \
+              -name '*.sh' \
+              -not -path './.git/*' \
+              -print0
+          )
+
+          if (( ${#scripts[@]} == 0 )); then
+            echo "No Bash scripts found."
+            exit 0
+          fi
+
+          echo "Checking ${#scripts[@]} Bash script(s)."
+          shellcheck "${scripts[@]}"
+      
+      # Kontrollerar PowerShell-scripts om repot innehåller några.
+      - name: Validate PowerShell scripts
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+
+          $scripts = @(
+            Get-ChildItem `
+              -Path . `
+              -Recurse `
+              -File `
+              -Filter *.ps1 |
+            Where-Object {
+              $_.FullName -notmatch '[\\/]\.git[\\/]'
+            }
+          )
+
+          if ($scripts.Count -eq 0) {
+            Write-Host "No PowerShell scripts found."
+            exit 0
+          }
+
+          Write-Host "Installing PSScriptAnalyzer."
+
+          Install-Module `
+            -Name PSScriptAnalyzer `
+            -RequiredVersion 1.25.0 `
+            -Scope CurrentUser `
+            -Force
+
+          $results = @()
+
+          foreach ($script in $scripts) {
+            Write-Host "Checking $($script.FullName)"
+
+            $results += Invoke-ScriptAnalyzer `
+              -Path $script.FullName `
+              -Severity Error,Warning
+          }
+
+          if ($results.Count -gt 0) {
+            $results | Format-Table -AutoSize
+            throw "PSScriptAnalyzer found script issues."
+          }
+
+          Write-Host "PowerShell script validation passed."

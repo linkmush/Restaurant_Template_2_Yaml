@@ -1,0 +1,136 @@
+name: GitOps CI
+
+on:
+  # Kör när en Pull Request riktas mot main.
+  pull_request:
+    branches:
+      - main
+
+  # Kör efter att en ändring har mergats till main.
+  push:
+    branches:
+      - main
+
+  # Gör det möjligt att starta workflowen manuellt.
+  workflow_dispatch:
+
+# Workflowen behöver bara läsa repot.
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate GitOps configuration
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      # Hämtar filerna från Git-repot.
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Installerar samma kubectl-version som din K3s-version,
+      # men utan K3s-suffixet.
+      #
+      # Detta ansluter inte till ditt kluster.
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: v1.35.5
+
+      # Installerar YAML-linter och Kubernetes-schemavalidering.
+      - name: Install validation tools
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          sudo apt-get update
+          sudo apt-get install -y yamllint
+
+          KUBECONFORM_VERSION="0.8.0"
+
+          curl -fsSLo kubeconform.tar.gz \
+            "https://github.com/yannh/kubeconform/releases/download/v${KUBECONFORM_VERSION}/kubeconform-linux-amd64.tar.gz"
+
+          tar -xzf kubeconform.tar.gz kubeconform
+
+          sudo install \
+            -m 0755 \
+            kubeconform \
+            /usr/local/bin/kubeconform
+
+          echo "Installed versions:"
+          yamllint --version
+          kubectl version --client
+          kubeconform -v
+
+      # Kontrollerar YAML-syntax i hela repot.
+      - name: Validate YAML syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          yamllint \
+            -c .yamllint.yaml \
+            .
+
+      # Kontrollerar att Kustomize kan bygga dev.
+      - name: Build dev configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mkdir -p rendered
+
+          kubectl kustomize \
+            kubernetes/environments/dev \
+            > rendered/dev.yaml
+
+          test -s rendered/dev.yaml
+
+          echo "Dev configuration rendered successfully."
+
+      # Kontrollerar att Kustomize kan bygga prod.
+      - name: Build prod configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          kubectl kustomize \
+            kubernetes/environments/prod \
+            > rendered/prod.yaml
+
+          test -s rendered/prod.yaml
+
+          echo "Prod configuration rendered successfully."
+
+      # Kontrollerar att den renderade konfigurationen
+      # följer Kubernetes API-scheman.
+      - name: Validate Kubernetes schemas
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          kubeconform \
+            -strict \
+            -summary \
+            -kubernetes-version "1.35.0" \
+            rendered/dev.yaml \
+            rendered/prod.yaml
+
+      # Stoppar image-taggen latest.
+      - name: Reject latest image tags
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if grep -RInE \
+            "^[[:space:]]*image:[[:space:]]*[^[:space:]#]+:latest([[:space:]]*(#.*)?)?$" \
+            rendered; then
+
+            echo "::error::Image-taggen latest är förbjuden."
+            echo "Använd en unik version, SHA-tagg eller digest."
+            exit 1
+          fi
+
+          echo "No latest image tags found."

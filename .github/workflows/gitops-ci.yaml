@@ -27,14 +27,14 @@ jobs:
     steps:
       # Hämtar filerna från Git-repot.
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       # Installerar samma kubectl-version som din K3s-version,
       # men utan K3s-suffixet.
       #
       # Detta ansluter inte till ditt kluster.
       - name: Install kubectl
-        uses: azure/setup-kubectl@v4
+        uses: azure/setup-kubectl@v5
         with:
           version: v1.35.5
 

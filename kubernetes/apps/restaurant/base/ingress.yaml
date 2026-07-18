@@ -40,3 +40,4 @@ spec:
                   # Service-resursen skickar sedan trafiken vidare
                   # till containerporten på rätt pods.
                   number: 80
+                  

@@ -35,3 +35,4 @@ spec:
     syncOptions:
       # Eventuell borttagning sker sist i synkningen.
       - PruneLast=true
+      

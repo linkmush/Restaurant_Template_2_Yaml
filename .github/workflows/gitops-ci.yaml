@@ -28,6 +28,8 @@ jobs:
       # Hämtar filerna från Git-repot.
       - name: Checkout repository
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
       # Installerar samma kubectl-version som din K3s-version,
       # men utan K3s-suffixet.
@@ -142,3 +144,14 @@ jobs:
         with:
           directory: rendered
           version: "v0.8.3"
+
+      # Söker efter hårdkodade tokens, lösenord,
+      # privata nycklar och andra secrets i Git-historiken.
+      - name: Scan repository for secrets
+        uses: gitleaks/gitleaks-action@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+          # Vi behåller workflowens nuvarande read-only-behörighet
+          # och stänger därför av automatiska PR-kommentarer.
+          GITLEAKS_ENABLE_COMMENTS: "false"

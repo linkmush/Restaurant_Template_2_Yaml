@@ -73,4 +73,3 @@ spec:
   # inte automatiskt raderas samtidigt.
   syncPolicy:
     preserveResourcesOnDeletion: true
-    

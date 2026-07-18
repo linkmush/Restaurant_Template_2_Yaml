@@ -28,4 +28,3 @@ spec:
 
     - group: argoproj.io
       kind: ApplicationSet
-      

@@ -1,6 +1,6 @@
 checks:
   # Tillfälliga undantag för den befintliga legacy-imagen
-  # ghcr.io/linkmush/restaurant-template:1.0.
+  # ghcr.io/linkmush/restaurant-template:1.1.
   #
   # Imagen kör som root och är inte verifierad för ett
   # skrivskyddat root-filsystem.

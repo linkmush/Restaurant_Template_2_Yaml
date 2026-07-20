@@ -2,7 +2,7 @@
 
 ## restaurant-template legacy image
 
-**Image:** `ghcr.io/linkmush/restaurant-template:1.0`
+**Image:** `ghcr.io/linkmush/restaurant-template:1.1`
 
 **Affected environments:**
 

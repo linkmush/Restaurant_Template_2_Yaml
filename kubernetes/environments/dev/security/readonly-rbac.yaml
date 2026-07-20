@@ -1,0 +1,50 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+
+metadata:
+  name: restaurant-readonly
+  namespace: restaurant-dev
+
+rules:
+  # Får läsa poddar, services och ConfigMaps.
+  # Secrets ingår avsiktligt inte.
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+      - services
+      - configmaps
+    verbs:
+      - get
+      - list
+      - watch
+
+  # Får läsa Deployments och ReplicaSets.
+  - apiGroups:
+      - apps
+    resources:
+      - deployments
+      - replicasets
+    verbs:
+      - get
+      - list
+      - watch
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+
+metadata:
+  name: restaurant-readonly
+  namespace: restaurant-dev
+
+subjects:
+  - kind: ServiceAccount
+    name: restaurant-readonly
+    namespace: restaurant-dev
+
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: restaurant-readonly

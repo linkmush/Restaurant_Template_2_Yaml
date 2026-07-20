@@ -11,6 +11,12 @@ resources:
   # Skapa även dev-namespacet.
   - namespace.yaml
 
+  - security/readonly-serviceaccount.yaml
+  - security/readonly-rbac.yaml
+  - security/resourcequota.yaml
+  - security/limitrange.yaml
+  - security/networkpolicies.yaml
+
 # Miljöspecifika ändringar.
 patches:
   - path: deployment-patch.yaml

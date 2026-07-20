@@ -34,4 +34,4 @@ patches:
 # Senare kan test och prod använda andra taggar.
 images:
   - name: ghcr.io/linkmush/restaurant-template
-    newTag: "1.0"
+    newTag: "1.1"

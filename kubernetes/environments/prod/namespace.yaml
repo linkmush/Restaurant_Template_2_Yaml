@@ -11,6 +11,18 @@ metadata:
     # Anger vilken driftsmiljö detta namespace representerar.
     environment: prod
 
+    # Stoppar de grövsta säkerhetsproblemen.
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/enforce-version: latest
+
+    # Visa varning om podden inte klarar restricted.
+    pod-security.kubernetes.io/warn: restricted
+    pod-security.kubernetes.io/warn-version: latest
+
+    # Registrera även avvikelser mot restricted.
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/audit-version: latest
+
     # Namespace skiljer prod-miljön från test- och dev-miljöer.
     #
     # Här placeras bland annat:

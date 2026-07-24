@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: LimitRange
+
+metadata:
+  name: restaurant-prod-limits
+
+spec:
+  limits:
+    - type: Container
+
+      # Används om en container saknar limits.
+      default:
+        cpu: 500m
+        memory: 512Mi
+
+      # Används om en container saknar requests.
+      defaultRequest:
+        cpu: 100m
+        memory: 128Mi
+
+      # Minsta tillåtna värde.
+      min:
+        cpu: 50m
+        memory: 64Mi
+
+      # Högsta tillåtna värde för en enskild container.
+      max:
+        cpu: "1"
+        memory: 1Gi

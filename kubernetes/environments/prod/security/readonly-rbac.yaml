@@ -1,0 +1,121 @@
+# Skapar en namespace-bunden Role med läsbehörighet.
+#
+# En Role gäller endast i det namespace som anges i metadata.
+# Den här rollen kan därför bara ge behörigheter i restaurant-prod.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+
+metadata:
+  # Namnet på behörighetsrollen.
+  name: restaurant-readonly
+
+  # Rollen gäller endast resurser i restaurant-prod.
+  namespace: restaurant-prod
+
+rules:
+  # Den tomma API-gruppen "" är Kubernetes core API-grupp.
+  #
+  # Här ingår bland annat:
+  # - pods
+  # - services
+  # - configmaps
+  # - secrets
+  #
+  # Secrets finns avsiktligt inte med i resources-listan
+  # och kan därför inte läsas genom denna Role.
+  - apiGroups:
+      - ""
+
+    # Resurser som identiteten får läsa.
+    resources:
+      - pods
+      - services
+      - configmaps
+
+    # Tillåtna läsoperationer:
+    #
+    # get:
+    # läsa en specifik resurs
+    #
+    # list:
+    # lista flera resurser
+    #
+    # watch:
+    # följa förändringar i resurser över tid
+    verbs:
+      - get
+      - list
+      - watch
+
+  # Deployments och ReplicaSets tillhör API-gruppen "apps".
+  #
+  # Därför behöver de ligga i en separat regel
+  # från poddar, services och ConfigMaps.
+  - apiGroups:
+      - apps
+
+    # Identiteten får läsa information om:
+    #
+    # deployments:
+    # önskat tillstånd, repliker och utrullningar
+    #
+    # replicasets:
+    # ReplicaSets som skapats av Deployments
+    resources:
+      - deployments
+      - replicasets
+
+    # Endast läsoperationer är tillåtna.
+    #
+    # Rollen får alltså inte:
+    # - create
+    # - update
+    # - patch
+    # - delete
+    verbs:
+      - get
+      - list
+      - watch
+
+---
+
+# Kopplar restaurant-readonly-rollen till en identitet.
+#
+# En Role beskriver vilka behörigheter som finns.
+# En RoleBinding beskriver vem som får använda behörigheterna.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+
+metadata:
+  # Namnet på kopplingen mellan identitet och Role.
+  name: restaurant-readonly
+
+  # RoleBindingen gäller endast i restaurant-prod.
+  #
+  # Den ger därför ingen behörighet i exempelvis:
+  # - restaurant-dev
+  # - kube-system
+  # - andra namespaces
+  namespace: restaurant-prod
+
+subjects:
+  # Identiteten som ska få readonly-behörigheten.
+  - kind: ServiceAccount
+
+    # Namnet på ServiceAccount-resursen.
+    name: restaurant-readonly
+
+    # ServiceAccounten finns i restaurant-prod.
+    namespace: restaurant-prod
+
+roleRef:
+  # Rollen finns i Kubernetes RBAC API-grupp.
+  apiGroup: rbac.authorization.k8s.io
+
+  # Kopplingen pekar på en namespace-bunden Role.
+  #
+  # Den pekar alltså inte på en ClusterRole.
+  kind: Role
+
+  # Namnet måste matcha Role-resursens metadata.name.
+  name: restaurant-readonly

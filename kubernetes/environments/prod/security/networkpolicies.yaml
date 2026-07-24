@@ -1,0 +1,136 @@
+# Standardpolicy för nätverksisolering i prod-namespacet.
+#
+# NetworkPolicies är additiva:
+# - denna policy blockerar all trafik som standard
+# - senare policies öppnar endast den trafik som uttryckligen behövs
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+
+metadata:
+  name: default-deny-all
+  namespace: restaurant-prod
+
+spec:
+  # En tom podSelector betyder att policyn gäller
+  # samtliga poddar i restaurant-prod.
+  podSelector: {}
+
+  # Isolera poddarna för både inkommande och utgående trafik.
+  #
+  # Ingress:
+  # trafik som försöker nå poddarna.
+  #
+  # Egress:
+  # trafik som poddarna försöker skicka ut.
+  policyTypes:
+    - Ingress
+    - Egress
+
+  # Inga ingress- eller egress-regler anges.
+  # Därför tillåter denna policy ingen trafik på egen hand.
+
+---
+
+# Tillåt poddarna i restaurant-prod att göra DNS-uppslag.
+#
+# Utan denna regel kan poddarna exempelvis inte slå upp:
+# - Kubernetes Service-namn
+# - interna DNS-namn
+# - externa domännamn
+#
+# Regeln öppnar endast DNS-trafik till CoreDNS.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+
+metadata:
+  name: allow-dns-egress
+  namespace: restaurant-prod
+
+spec:
+  # DNS behövs normalt av alla poddar i namespacet.
+  # Därför gäller policyn samtliga poddar i restaurant-prod.
+  podSelector: {}
+
+  # Policyn öppnar endast utgående trafik.
+  policyTypes:
+    - Egress
+
+  egress:
+    - to:
+        # Mål-namespacet måste vara kube-system.
+        #
+        # Kubernetes lägger automatiskt denna label
+        # på varje namespace.
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+
+          # Målpodden måste dessutom vara CoreDNS.
+          #
+          # namespaceSelector och podSelector ligger i samma
+          # "to"-post och måste därför båda matcha.
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+
+      ports:
+        # DNS använder normalt UDP på port 53.
+        - protocol: UDP
+          port: 53
+
+        # TCP 53 behövs bland annat för större DNS-svar
+        # och vissa typer av DNS-kommunikation.
+        - protocol: TCP
+          port: 53
+
+---
+
+# Tillåt Traefik att skicka inkommande webbtrafik
+# till restaurant-template-poddarna.
+#
+# Default-deny-policyn blockerar annars även trafik
+# som kommer via Ingress-controllern.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+
+metadata:
+  name: allow-traefik-ingress
+  namespace: restaurant-prod
+
+spec:
+  # Policyn gäller endast poddar som tillhör
+  # restaurant-template-applikationen.
+  #
+  # Andra poddar i restaurant-prod påverkas inte
+  # av denna tillåtande regel.
+  podSelector:
+    matchLabels:
+      app: restaurant-template
+
+  # Policyn öppnar endast inkommande trafik.
+  policyTypes:
+    - Ingress
+
+  ingress:
+    - from:
+        # Trafikens källpod måste finnas i kube-system.
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+
+          # Källpodden måste dessutom vara en Traefik-pod.
+          #
+          # Båda kraven måste vara uppfyllda:
+          # 1. podden finns i kube-system
+          # 2. podden har Traefik-labeln
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: traefik
+
+      ports:
+        # Trafiken tillåts endast till port 8080
+        # på restaurant-template-podden.
+        #
+        # Detta är containerns målport, inte Service-port 80.
+        - protocol: TCP
+          port: 8080

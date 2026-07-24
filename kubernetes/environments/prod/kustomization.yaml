@@ -8,8 +8,14 @@ resources:
   # Återanvänd restaurangapplikationens gemensamma base.
   - ../../apps/restaurant/base
 
-  # Skapa även dev-namespacet.
+  # Skapa även prod-namespacet.
   - namespace.yaml
+
+  - security/readonly-serviceaccount.yaml
+  - security/readonly-rbac.yaml
+  - security/resourcequota.yaml
+  - security/limitrange.yaml
+  - security/networkpolicies.yaml
 
 # Miljöspecifika ändringar.
 patches:
@@ -24,8 +30,8 @@ patches:
       name: restaurant-ingress
     path: ingress-patch.yaml
 
-# Prod-miljön använder denna image-tagg.
-# Senare kan test och prod använda andra taggar.
+# Prod väljer sin image-tagg oberoende av dev och andra miljöer.
+# Senare kan test och dev använda andra taggar.
 images:
   - name: ghcr.io/linkmush/restaurant-template
-    newTag: "1.0"
+    newTag: "1.1"

@@ -6,3 +6,4 @@ resources:
   - appproject.yaml
   - applicationset.yaml
   - monitoring-project.yaml
+  - monitoring-application.yaml

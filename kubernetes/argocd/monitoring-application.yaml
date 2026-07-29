@@ -1,0 +1,55 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+
+metadata:
+  name: monitoring
+  namespace: argocd
+
+  annotations:
+    # Själva monitoring-applikationen ska inte tas bort
+    # av den överordnade GitOps-applikationen utan bekräftelse.
+    argocd.argoproj.io/sync-options: Prune=confirm
+
+spec:
+  project: monitoring
+
+  sources:
+    # Källa 1: den officiella Helm-charten.
+    - repoURL: https://prometheus-community.github.io/helm-charts
+      chart: kube-prometheus-stack
+      targetRevision: 87.21.0
+
+      helm:
+        releaseName: monitoring
+
+        # $values pekar på Git-repots rot genom källan nedanför.
+        valueFiles:
+          - $values/kubernetes/platform/monitoring/values.yaml
+
+    # Källa 2: vårt GitOps-repo.
+    #
+    # path gör att namespace.yaml appliceras.
+    # ref gör att samma repo kan användas för values.yaml.
+    - repoURL: https://github.com/linkmush/Restaurant_Template_2_Yaml.git
+      targetRevision: main
+      ref: values
+      path: kubernetes/platform/monitoring
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+
+    syncOptions:
+      # Hjälper vid installation av stora CRD-resurser.
+      - ServerSideApply=true
+
+      # Tillåter CR-resurser att behandlas samtidigt som
+      # deras CRD:er installeras första gången.
+      - SkipDryRunOnMissingResource=true
+
+      - PruneLast=true

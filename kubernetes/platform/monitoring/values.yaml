@@ -1,0 +1,190 @@
+# Anpassningar för ett resurssnålt K3s-homelab.
+
+# K3s kör flera control plane-komponenter inuti k3s-processen.
+# Vi stänger därför av separata targets som annars kan ge
+# otillgängliga targets eller felaktiga larm.
+kubeControllerManager:
+  enabled: false
+
+kubeScheduler:
+  enabled: false
+
+kubeProxy:
+  enabled: false
+
+# Ditt single-server-kluster använder inte en separat etcd
+# som kube-prometheus-stack kan övervaka på standardsättet.
+kubeEtcd:
+  enabled: false
+
+# Stäng även av regler som hör till ovanstående targets.
+defaultRules:
+  rules:
+    etcd: false
+    kubeControllerManager: false
+    kubeProxy: false
+    kubeSchedulerAlerting: false
+    kubeSchedulerRecording: false
+
+# Prometheus Operator hanterar Prometheus-, Alertmanager-
+# och ServiceMonitor-resurserna.
+prometheusOperator:
+  nodeSelector:
+    node-pool: platform
+
+  tolerations:
+    - key: node-role.kubernetes.io/control-plane
+      operator: Exists
+      effect: NoSchedule
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 100Mi
+    limits:
+      cpu: 200m
+      memory: 200Mi
+
+# Grafana visar dashboards och använder secretet
+# som redan finns i monitoring-namespacet.
+grafana:
+  admin:
+    existingSecret: grafana-admin-credentials
+    userKey: admin-user
+    passwordKey: admin-password
+
+  nodeSelector:
+    node-pool: platform
+
+  tolerations:
+    - key: node-role.kubernetes.io/control-plane
+      operator: Exists
+      effect: NoSchedule
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 300m
+      memory: 300Mi
+
+  persistence:
+    enabled: true
+    storageClassName: local-path
+    accessModes:
+      - ReadWriteOnce
+    size: 512Mi
+
+  # Vi använder port-forward först.
+  # Ingress lägger vi till när installationen är verifierad.
+  ingress:
+    enabled: false
+
+# kube-state-metrics visar tillståndet för Kubernetes-resurser:
+# poddar, deployments, noder, restarts och liknande.
+kube-state-metrics:
+  nodeSelector:
+    node-pool: platform
+
+  tolerations:
+    - key: node-role.kubernetes.io/control-plane
+      operator: Exists
+      effect: NoSchedule
+
+  resources:
+    requests:
+      cpu: 30m
+      memory: 64Mi
+    limits:
+      cpu: 150m
+      memory: 128Mi
+
+# node-exporter körs som DaemonSet på alla noder.
+# Tolerationen gör att den också får köras på control plane.
+prometheus-node-exporter:
+  tolerations:
+    - key: node-role.kubernetes.io/control-plane
+      operator: Exists
+      effect: NoSchedule
+
+  resources:
+    requests:
+      cpu: 20m
+      memory: 32Mi
+    limits:
+      cpu: 100m
+      memory: 64Mi
+
+# Alertmanager hanterar larm, grupperingar och tystningar.
+alertmanager:
+  enabled: true
+
+  alertmanagerSpec:
+    replicas: 1
+
+    nodeSelector:
+      node-pool: platform
+
+    tolerations:
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists
+        effect: NoSchedule
+
+    resources:
+      requests:
+        cpu: 30m
+        memory: 64Mi
+      limits:
+        cpu: 150m
+        memory: 160Mi
+
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: local-path
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 512Mi
+
+# Prometheus samlar och lagrar alla metrics.
+prometheus:
+  enabled: true
+
+  prometheusSpec:
+    replicas: 1
+
+    nodeSelector:
+      node-pool: platform
+
+    tolerations:
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists
+        effect: NoSchedule
+
+    resources:
+      requests:
+        cpu: 200m
+        memory: 300Mi
+      limits:
+        cpu: 800m
+        memory: 800Mi
+
+    # Kort historik för att spara disk i homelabbet.
+    retention: 3d
+    retentionSize: 2GB
+
+    scrapeInterval: 30s
+    evaluationInterval: 30s
+
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: local-path
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 3Gi

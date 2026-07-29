@@ -123,6 +123,9 @@ alertmanager:
   alertmanagerSpec:
     replicas: 1
 
+    alertmanagerConfiguration:
+      name: homelab-email
+
     nodeSelector:
       node-pool: platform
 

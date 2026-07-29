@@ -20,7 +20,12 @@ spec:
 
   # Projektet får endast deploya till monitoring-namespacet.
   destinations:
+    # De flesta komponenterna körs i monitoring.
     - namespace: monitoring
+      server: https://kubernetes.default.svc
+
+    # kube-prometheus-stack skapar kubelet-resurser här.
+    - namespace: kube-system
       server: https://kubernetes.default.svc
 
   # kube-prometheus-stack skapar flera cluster-resurser,

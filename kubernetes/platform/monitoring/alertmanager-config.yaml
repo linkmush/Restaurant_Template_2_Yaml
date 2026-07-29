@@ -1,0 +1,48 @@
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: AlertmanagerConfig
+
+metadata:
+  name: homelab-email
+  namespace: monitoring
+
+spec:
+  route:
+    # Alerts som inte är warning eller critical skickas ingenstans.
+    receiver: "null"
+
+    # Liknande alerts grupperas i samma mejl.
+    groupBy:
+      - alertname
+      - namespace
+
+    groupWait: 30s
+    groupInterval: 5m
+    repeatInterval: 12h
+
+    routes:
+      # v1alpha1 använder regex: true,
+      # inte matchType som v1beta1 använder.
+      - receiver: homelab-email
+        matchers:
+          - name: severity
+            value: "warning|critical"
+            regex: true
+
+  receivers:
+    # Watchdog, info och övriga alerts hamnar här.
+    - name: "null"
+
+    - name: homelab-email
+      emailConfigs:
+        - to: lindqvist_11@hotmail.com
+          from: oskar.k3s.alerts@gmail.com
+
+          smarthost: smtp.gmail.com:587
+          authUsername: oskar.k3s.alerts@gmail.com
+
+          authPassword:
+            name: alertmanager-smtp-credentials
+            key: password
+
+          requireTLS: true
+          sendResolved: true

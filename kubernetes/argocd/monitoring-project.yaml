@@ -1,0 +1,36 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+
+metadata:
+  name: monitoring
+  namespace: argocd
+
+  annotations:
+    # Projektet får inte raderas automatiskt utan godkännande.
+    argocd.argoproj.io/sync-options: Prune=confirm
+
+spec:
+  description: Argo CD project for cluster monitoring and observability.
+
+  # Monitoring får läsa vår egen GitOps-konfiguration
+  # och den officiella Helm-repositoryn för Prometheus.
+  sourceRepos:
+    - https://github.com/linkmush/Restaurant_Template_2_Yaml.git
+    - https://prometheus-community.github.io/helm-charts
+
+  # Projektet får endast deploya till monitoring-namespacet.
+  destinations:
+    - namespace: monitoring
+      server: https://kubernetes.default.svc
+
+  # kube-prometheus-stack skapar flera cluster-resurser,
+  # bland annat CRD, ClusterRole och ClusterRoleBinding.
+  clusterResourceWhitelist:
+    - group: "*"
+      kind: "*"
+
+  # Charten skapar många typer av resurser i monitoring,
+  # exempelvis Deployments, StatefulSets, Services och Secrets.
+  namespaceResourceWhitelist:
+    - group: "*"
+      kind: "*"

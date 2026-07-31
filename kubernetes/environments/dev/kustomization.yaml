@@ -7,6 +7,8 @@ namespace: restaurant-dev
 resources:
   # Återanvänd restaurangapplikationens gemensamma base.
   - ../../apps/restaurant/base
+  # Återanvänd config-demo-applikationens gemensamma base.
+  - ../../apps/config-demo/base
 
   # Skapa även dev-namespacet.
   - namespace.yaml
@@ -23,6 +25,8 @@ patches:
 
   - path: service-patch.yaml
 
+  - path: config-demo-patch.yaml
+
   - target:
       group: networking.k8s.io
       version: v1
@@ -35,3 +39,11 @@ patches:
 images:
   - name: ghcr.io/linkmush/restaurant-template
     newTag: "1.1"
+
+configMapGenerator:
+  - name: config-demo-config
+
+    literals:
+      - APP_ENVIRONMENT=dev
+      - API_URL=http://restaurant-api
+      - LOG_LEVEL=Debug

@@ -46,4 +46,4 @@ configMapGenerator:
     literals:
       - APP_ENVIRONMENT=dev
       - API_URL=http://restaurant-api
-      - LOG_LEVEL=Trace
+      - LOG_LEVEL=Debug

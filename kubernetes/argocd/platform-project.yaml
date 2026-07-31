@@ -49,9 +49,14 @@ spec:
     - group: ""
       kind: Service
 
-    # Deployment tillhör apps API group.
     - group: apps
       kind: Deployment
+
+    - group: rbac.authorization.k8s.io
+      kind: Role
+
+    - group: rbac.authorization.k8s.io
+      kind: RoleBinding
 
   # Cluster-omfattande resurser som projektet får skapa.
   clusterResourceWhitelist:

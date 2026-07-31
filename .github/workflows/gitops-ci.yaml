@@ -117,6 +117,8 @@ jobs:
             -strict \
             -summary \
             -kubernetes-version "1.35.0" \
+            -schema-location default \
+            -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' \
             rendered/dev.yaml \
             rendered/prod.yaml
 
@@ -151,6 +153,9 @@ jobs:
         uses: gitleaks/gitleaks-action@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+          # Använd repots versionshanterade Gitleaks-konfiguration.
+          GITLEAKS_CONFIG: ".gitleaks.toml"
 
           # Vi behåller workflowens nuvarande read-only-behörighet
           # och stänger därför av automatiska PR-kommentarer.

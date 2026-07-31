@@ -1,0 +1,26 @@
+title = "Restaurant Template Gitleaks configuration"
+
+# Behåll samtliga standardregler i Gitleaks.
+[extend]
+useDefault = true
+
+# Utöka endast standardregeln generic-api-key.
+[[rules]]
+id = "generic-api-key"
+
+# Tillåt kubeseal-ciphertext, men endast när både:
+#
+# 1. filen är ett SealedSecret-manifest i dev eller prod
+# 2. raden ser ut som kubeseal-krypterad data som börjar med Ag
+[[rules.allowlists]]
+description = "Allow kubeseal ciphertext in SealedSecret manifests"
+condition = "AND"
+regexTarget = "line"
+
+paths = [
+  '''^kubernetes/environments/(dev|prod)/security/[^/]+-sealedsecret\.ya?ml$'''
+]
+
+regexes = [
+  '''^\s*[A-Za-z0-9._-]+:\s+Ag[A-Za-z0-9+/=]+\s*$'''
+]

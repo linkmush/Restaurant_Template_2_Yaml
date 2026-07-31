@@ -154,6 +154,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+          # Använd repots versionshanterade Gitleaks-konfiguration.
+          GITLEAKS_CONFIG: ".gitleaks.toml"
+
           # Vi behåller workflowens nuvarande read-only-behörighet
           # och stänger därför av automatiska PR-kommentarer.
           GITLEAKS_ENABLE_COMMENTS: "false"

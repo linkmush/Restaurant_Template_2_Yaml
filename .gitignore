@@ -1,0 +1,9 @@
+# Plaintext Kubernetes secrets must never be committed
+**/secret-plain.yaml
+**/*-secret-plain.yaml
+**/*.secret.env
+**/secret.env
+**/.env.secret
+
+# Sealed Secrets private-key backups
+**/sealed-secrets-key-backup*

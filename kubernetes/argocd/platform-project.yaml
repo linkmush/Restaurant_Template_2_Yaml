@@ -16,9 +16,16 @@ spec:
   sourceRepos:
     - https://github.com/linkmush/Restaurant_Template_2_Yaml.git
 
-  # Plattformens Application får endast deploya till argocd-namespacet.
+    - https://bitnami.github.io/sealed-secrets
+
+  # Projektet får endast deploya till dessa namespaces.
   destinations:
+    # Argo CD-bootstrapresurser.
     - namespace: argocd
+      server: https://kubernetes.default.svc
+
+    # Sealed Secrets-controller.
+    - namespace: kube-system
       server: https://kubernetes.default.svc
 
   # Bootstrap behöver just nu endast hantera dessa två resurstyper.
@@ -31,3 +38,30 @@ spec:
 
     - group: argoproj.io
       kind: Application
+
+    # Sealed Secrets Helm-chart.
+    #
+    # Service och ServiceAccount tillhör Kubernetes core API group.
+    # Core-gruppen skrivs som en tom sträng.
+    - group: ""
+      kind: ServiceAccount
+
+    - group: ""
+      kind: Service
+
+    # Deployment tillhör apps API group.
+    - group: apps
+      kind: Deployment
+
+  # Cluster-omfattande resurser som projektet får skapa.
+  clusterResourceWhitelist:
+    # SealedSecret-typen installeras som en CRD.
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+
+    # Sealed Secrets-controllerns cluster-wide RBAC.
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRoleBinding

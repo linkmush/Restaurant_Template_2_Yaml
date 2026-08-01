@@ -7,6 +7,8 @@ namespace: restaurant-prod
 resources:
   # Återanvänd restaurangapplikationens gemensamma base.
   - ../../apps/restaurant/base
+  # Återanvänd config-demo-applikationens gemensamma base.
+  - ../../apps/config-demo/base
 
   # Skapa även prod-namespacet.
   - namespace.yaml
@@ -16,12 +18,15 @@ resources:
   - security/resourcequota.yaml
   - security/limitrange.yaml
   - security/networkpolicies.yaml
+  - security/config-demo-sealedsecret.yaml
 
 # Miljöspecifika ändringar.
 patches:
   - path: deployment-patch.yaml
 
   - path: service-patch.yaml
+
+  - path: config-demo-patch.yaml
 
   - target:
       group: networking.k8s.io
@@ -35,3 +40,11 @@ patches:
 images:
   - name: ghcr.io/linkmush/restaurant-template
     newTag: "1.1"
+
+configMapGenerator:
+  - name: config-demo-config
+
+    literals:
+      - APP_ENVIRONMENT=production
+      - API_URL=http://restaurant-api
+      - LOG_LEVEL=Information

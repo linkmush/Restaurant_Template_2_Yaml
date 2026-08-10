@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: StatefulSet
+
+metadata:
+  name: storage-demo
+
+  labels:
+    app: storage-demo
+
+spec:
+  serviceName: storage-demo
+
+  replicas: 1
+
+  # PVC:n ska behållas även om StatefulSetet tas bort
+  # eller skalas ner.
+  persistentVolumeClaimRetentionPolicy:
+    whenDeleted: Retain
+    whenScaled: Retain
+
+  selector:
+    matchLabels:
+      app: storage-demo
+
+  template:
+    metadata:
+      labels:
+        app: storage-demo
+
+    spec:
+      serviceAccountName: storage-demo
+      automountServiceAccountToken: false
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+
+        seccompProfile:
+          type: RuntimeDefault
+
+      containers:
+        - name: storage-demo
+
+          image: busybox:1.37.0
+
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "Pod started: $(date) on $(hostname)" >> /data/events.log
+              while true; do
+                sleep 3600
+              done
+
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+
+            limits:
+              cpu: 100m
+              memory: 64Mi
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+
+            capabilities:
+              drop:
+                - ALL
+
+          volumeMounts:
+            - name: data
+              mountPath: /data
+
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+
+      spec:
+        accessModes:
+          - ReadWriteOnce
+
+        storageClassName: local-path
+
+        resources:
+          requests:
+            storage: 1Gi

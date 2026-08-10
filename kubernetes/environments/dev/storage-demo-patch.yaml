@@ -1,0 +1,12 @@
+apiVersion: apps/v1
+kind: StatefulSet
+
+metadata:
+  name: storage-demo
+
+spec:
+  template:
+    spec:
+      nodeSelector:
+        node-pool: applications
+        environment: dev

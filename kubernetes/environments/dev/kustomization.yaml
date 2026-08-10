@@ -9,6 +9,8 @@ resources:
   - ../../apps/restaurant/base
   # Återanvänd config-demo-applikationens gemensamma base.
   - ../../apps/config-demo/base
+  # Återanvänd storage-demo-applikationens gemensamma base.
+  - ../../apps/storage-demo/base
 
   # Skapa även dev-namespacet.
   - namespace.yaml
@@ -27,6 +29,8 @@ patches:
   - path: service-patch.yaml
 
   - path: config-demo-patch.yaml
+
+  - path: storage-demo-patch.yaml
 
   - target:
       group: networking.k8s.io

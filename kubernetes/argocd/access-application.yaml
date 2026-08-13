@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+
+metadata:
+  name: platform-access
+  namespace: argocd
+
+spec:
+  project: platform
+
+  source:
+    repoURL: https://github.com/linkmush/Restaurant_Template_2_Yaml.git
+    targetRevision: main
+    path: kubernetes/platform/access
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

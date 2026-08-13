@@ -8,3 +8,4 @@ resources:
   - monitoring-project.yaml
   - monitoring-application.yaml
   - sealed-secrets-application.yaml
+  - access-application.yaml

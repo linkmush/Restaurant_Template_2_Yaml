@@ -35,6 +35,16 @@ rules:
       - list
       - watch
 
+  # Nätverksresurser.
+  # Behövs för att diagnostikscriptet ska kunna läsa Ingress.
+  - apiGroups: ["networking.k8s.io"]
+    resources:
+      - ingresses
+    verbs:
+      - get
+      - list
+      - watch
+
   - apiGroups: ["argoproj.io"]
     resources:
       - applications

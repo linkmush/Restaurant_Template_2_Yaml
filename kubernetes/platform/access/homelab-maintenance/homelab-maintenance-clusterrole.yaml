@@ -1,0 +1,19 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: homelab-maintenance
+
+rules:
+  # Cordon och uncordon ändrar Node-objektet.
+  - apiGroups: [""]
+    resources:
+      - nodes
+    verbs:
+      - patch
+
+  # Drain använder Kubernetes Eviction API.
+  - apiGroups: [""]
+    resources:
+      - pods/eviction
+    verbs:
+      - create

@@ -10,4 +10,3 @@ resources:
   - homelab-maintenance/homelab-maintenance-clusterrole.yaml
   - homelab-maintenance/homelab-maintenance-binding.yaml
   - homelab-maintenance/homelab-maintenance-observer-binding.yaml
-

@@ -15,4 +15,3 @@ resources:
   - incident@homelab/incident-responder-clusterrole.yaml
   - incident@homelab/incident-responder-binding.yaml
   - incident@homelab/incident-responder-observer-binding.yaml
-

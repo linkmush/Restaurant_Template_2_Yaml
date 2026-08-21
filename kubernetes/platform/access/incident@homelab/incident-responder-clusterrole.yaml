@@ -4,13 +4,27 @@ metadata:
   name: incident-responder
 
 rules:
+
+  # Läs allt i klustret för felsökning
+  - apiGroups: ["*"]
+    resources: ["*"]
+    verbs:
+      - get
+      - list
+      - watch
+
+  # Tillåt exec in i containers
+  - apiGroups: [""]
+    resources:
+      - pods/exec
+    verbs:
+      - create
+
+  # Tillåt incident-responder att korrigera workloads
   - apiGroups: ["apps"]
     resources:
       - deployments
       - replicasets
     verbs:
-      - get
-      - list
-      - watch
       - patch
       - update

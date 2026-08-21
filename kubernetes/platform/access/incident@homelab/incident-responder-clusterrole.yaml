@@ -5,7 +5,7 @@ metadata:
 
 rules:
 
-  # Läs allt i klustret för felsökning
+  # Får undersöka alla Kubernetes-resurser
   - apiGroups: ["*"]
     resources: ["*"]
     verbs:
@@ -13,18 +13,37 @@ rules:
       - list
       - watch
 
-  # Tillåt exec in i containers
+  # Får gå in i containers
   - apiGroups: [""]
     resources:
       - pods/exec
     verbs:
       - create
 
-  # Tillåt incident-responder att korrigera workloads
+  # Får korrigera workloads
   - apiGroups: ["apps"]
     resources:
       - deployments
       - replicasets
+    verbs:
+      - patch
+      - update
+
+  # Får korrigera Service, ConfigMap och Secrets
+  - apiGroups: [""]
+    resources:
+      - services
+      - configmaps
+      - secrets
+    verbs:
+      - patch
+      - update
+
+  # Får korrigera Ingress och NetworkPolicy
+  - apiGroups: ["networking.k8s.io"]
+    resources:
+      - ingresses
+      - networkpolicies
     verbs:
       - patch
       - update

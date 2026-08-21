@@ -1,0 +1,15 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: incident-responder
+  namespace: incident-lab
+
+subjects:
+  - kind: User
+    name: oskar-incident
+    apiGroup: rbac.authorization.k8s.io
+
+roleRef:
+  kind: Role
+  name: incident-responder
+  apiGroup: rbac.authorization.k8s.io

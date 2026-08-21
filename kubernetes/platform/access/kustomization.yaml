@@ -12,5 +12,5 @@ resources:
   - homelab-maintenance/homelab-maintenance-observer-binding.yaml
 
   # Incident responder.
-  - incident@homelab/incident-responder-role.yaml
+  - incident@homelab/incident-responder-clusterrole.yaml
   - incident@homelab/incident-responder-binding.yaml
